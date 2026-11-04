@@ -1,0 +1,820 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Quarzo Computer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: scheda tecnica da laboratorio. Verde circuito stampato + rame, tracce che attraversano la pagina, dati in mono. */
+:root{
+  --bg:#EEF2EF; --surface:#FFFFFF; --surface-2:#E3EAE5; --ink:#0D1C17; --muted:#475A52; --line:#C7D2CB;
+  --pcb:#0B6B4F; --pcb-ink:#FFFFFF; --copper:#9A4F17; --good:#1B7F4B; --warn:#8A5A00; --bad:#B3261E;
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Hanken Grotesk','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#08110E; --surface:#0F1B17; --surface-2:#15251F; --ink:#E7F0EB; --muted:#9DB2A8; --line:#223730;
+    --pcb:#34C79A; --pcb-ink:#04140D; --copper:#E8A064; --good:#4CD08A; --warn:#E5B04A; --bad:#F0857D; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#08110E; --surface:#0F1B17; --surface-2:#15251F; --ink:#E7F0EB; --muted:#9DB2A8; --line:#223730;
+  --pcb:#34C79A; --pcb-ink:#04140D; --copper:#E8A064; --good:#4CD08A; --warn:#E5B04A; --bad:#F0857D; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bg)}
+h1,h2,h3{font-family:var(--font-display);line-height:1.08;letter-spacing:-.02em;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pcb);outline-offset:2px}
+.mono{font-family:var(--font-mono)}
+.wrap{max-width:1200px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+section[id]{scroll-margin-top:72px}
+.eyebrow{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--copper);margin-bottom:10px}
+.sec{padding-block:72px}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px 32px;margin-bottom:32px}
+.sec-head h2{font-size:clamp(1.9rem,4vw,3rem);max-width:18ch}
+.sec-head p{max-width:46ch;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);padding:11px 20px;border-radius:var(--r);font-weight:600;cursor:pointer;text-decoration:none;min-height:44px}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--pcb);border-color:var(--pcb);color:var(--pcb-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.sm{padding:8px 14px;min-height:38px;font-size:.92rem}
+
+/* top strip + header */
+.strip{background:var(--pcb);color:var(--pcb-ink);font-family:var(--font-mono);font-size:.78rem}
+.strip .wrap{display:flex;flex-wrap:wrap;gap:4px 24px;justify-content:center;padding-block:8px;text-align:center}
+header.site{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+header.site .wrap{display:flex;align-items:center;gap:20px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand b{font-family:var(--font-display);font-size:1.45rem;letter-spacing:-.03em}
+.brand small{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.14em;color:var(--muted);align-self:flex-end;margin-bottom:5px}
+.brand svg{width:30px;height:30px;flex:none}
+nav.main{display:flex;gap:4px;margin-left:auto}
+nav.main a{text-decoration:none;padding:8px 12px;border-radius:var(--r);font-weight:500;font-size:.95rem}
+nav.main a:hover{background:var(--surface-2)}
+.hdr-cta{margin-left:auto;position:relative}
+nav.main + .hdr-cta{margin-left:0}
+@media (max-width:900px){nav.main{display:none}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding-block:56px 72px;border-bottom:1px solid var(--line)}
+.traces{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.traces .base{fill:none;stroke:var(--line);stroke-width:1.5}
+.traces .pulse{fill:none;stroke:var(--copper);stroke-width:2;stroke-dasharray:36 520;animation:flow 9s linear infinite}
+.traces .pulse.b{animation-duration:12s;animation-delay:-4s}
+.traces .pulse.c{animation-duration:15s;animation-delay:-8s}
+.traces circle{fill:var(--bg);stroke:var(--line);stroke-width:1.5}
+@keyframes flow{to{stroke-dashoffset:-556}}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;align-items:center}
+.hero h1{font-size:clamp(2.5rem,6vw,4.9rem);font-weight:700}
+.hero h1 em{font-style:normal;color:var(--pcb)}
+.hero .lead{margin-top:22px;font-size:1.14rem;color:var(--muted);max-width:50ch}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:44px 0 0;border-top:1px solid var(--ink)}
+.facts div{padding:14px 12px 0 0}
+.facts dt{font-family:var(--font-mono);font-size:1.5rem;font-weight:500}
+.facts dd{margin:2px 0 0;font-size:.85rem;color:var(--muted)}
+.sheet{background:var(--surface);border:1px solid var(--ink);border-radius:var(--r);padding:20px;box-shadow:8px 8px 0 var(--surface-2)}
+.sheet-top{display:flex;justify-content:space-between;gap:12px;font-family:var(--font-mono);font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sheet svg.draw{display:block;width:100%;height:auto;margin-block:6px}
+.sheet h3{font-size:1.5rem}
+.legend{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px;font-family:var(--font-mono);font-size:.82rem}
+.legend li{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}
+.legend i{font-style:normal;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--copper);color:var(--surface);font-size:.72rem}
+.sheet-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.price{font-family:var(--font-mono);font-weight:500}
+.price.big{font-size:1.6rem}
+.s{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.f1{fill:var(--surface)}.f2{fill:var(--surface-2)}.fc{fill:var(--copper)}.fg{fill:var(--pcb)}
+.sc{fill:none;stroke:var(--copper);stroke-width:2;stroke-linecap:round}
+@media (max-width:900px){.hero-grid{grid-template-columns:minmax(0,1fr)}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.facts div{padding-bottom:12px}}
+
+/* come funziona */
+.how{border-bottom:1px solid var(--line);background:var(--surface)}
+.how ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.how li{padding:24px 24px 24px 0;display:grid;gap:6px;align-content:start}
+.how li + li{padding-left:24px;border-left:1px solid var(--line)}
+.how b{font-family:var(--font-display);font-size:1.2rem}
+.how li span{color:var(--muted);font-size:.93rem}
+.how .n{font-family:var(--font-mono);color:var(--copper);font-size:.76rem;letter-spacing:.08em}
+@media (max-width:760px){.how ol{grid-template-columns:minmax(0,1fr)}.how li + li{padding-left:0;border-left:0;border-top:1px solid var(--line)}}
+
+/* catalog */
+.tools{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;margin-bottom:22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.tools .grow{flex:1 1 200px;min-width:0}
+.field{width:100%;min-height:44px;padding:9px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.field:focus-visible{border-color:var(--pcb)}
+.count{font-family:var(--font-mono);font-size:.82rem;color:var(--muted);margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:18px}
+.prod{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;min-width:0}
+.prod:hover{border-color:var(--ink)}
+.prod figure{position:relative;margin:0;background:var(--surface-2);padding:18px 24px 10px}
+.prod figure svg{display:block;width:100%;height:132px}
+.badge{position:absolute;top:12px;left:12px;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:4px;background:var(--ink);color:var(--bg)}
+.badge.ric{background:var(--copper);color:var(--surface)}
+.badge.off{left:auto;right:12px;background:var(--pcb);color:var(--pcb-ink)}
+.prod .body{display:flex;flex-direction:column;gap:10px;padding:16px 18px 18px;flex:1}
+.prod h3{font-size:1.2rem}
+.prod .sub{color:var(--muted);font-size:.88rem;margin-top:-6px}
+.specs{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-family:var(--font-mono);font-size:.78rem}
+.specs dt{color:var(--muted)}
+.specs dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.buy{margin-top:auto;display:flex;align-items:end;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px dashed var(--line)}
+.buy .old{display:block;font-family:var(--font-mono);font-size:.78rem;color:var(--muted);text-decoration:line-through}
+.stock{font-size:.78rem;display:flex;align-items:center;gap:6px;color:var(--muted)}
+.stock::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--good)}
+.stock.low::before{background:var(--warn)}
+
+/* guide */
+.profiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media (max-width:900px){.profiles{grid-template-columns:minmax(0,1fr)}}
+.profile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:12px}
+.profile h3{font-size:1.4rem}
+.profile p{color:var(--muted);font-size:.93rem}
+.profile .specs{font-size:.82rem;grid-template-columns:90px 1fr;padding-top:12px;border-top:1px dashed var(--line)}
+.profile .btn{margin-top:auto;align-self:flex-start}
+
+/* faq */
+.faq{max-width:820px}
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;list-style:none;padding:18px 40px 18px 0;font-family:var(--font-display);font-size:1.15rem;font-weight:600;position:relative}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:6px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:1.3rem;color:var(--copper)}
+details[open] summary::after{content:"\2212"}
+details p{padding:0 40px 20px 0;color:var(--muted)}
+
+/* sicurezza */
+.tips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:760px){.tips{grid-template-columns:minmax(0,1fr)}}
+.tipbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;min-width:0}
+.tipbox h3{font-size:1.3rem;margin-bottom:12px}
+.tipbox ul{margin:0;padding-left:18px;display:grid;gap:10px;color:var(--muted)}
+.tipbox li b{color:var(--ink)}
+
+footer{background:var(--pcb);color:var(--pcb-ink);margin-top:8px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 32px;padding-block:28px;font-size:.88rem}
+footer b{font-family:var(--font-display);font-size:1.2rem}
+footer p{max-width:60ch;opacity:.92}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:var(--r);z-index:70;max-width:min(92vw,460px);font-size:.92rem}
+/* mercato dell'usato */
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.mchip{border:1px solid var(--line);background:var(--surface);padding:8px 16px;border-radius:99px;cursor:pointer;font-weight:500;font-size:.93rem;min-height:40px}
+.mchip:hover{border-color:var(--ink)}
+.mchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.ck{display:inline-flex;align-items:center;gap:8px;font-size:.92rem;min-height:40px;cursor:pointer}
+.ck input{width:18px;height:18px;accent-color:var(--pcb);flex:none}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.prod figure.photo{padding:0}
+.prod figure.photo img{display:block;width:100%;height:176px;object-fit:cover}
+.seller{font-size:.8rem;color:var(--muted);font-family:var(--font-mono)}
+.mk-note{margin-top:22px;padding:14px 16px;border:1px dashed var(--line);border-radius:var(--r);color:var(--muted);font-size:.9rem}
+.mk-state{padding:28px;border:1px dashed var(--ink);border-radius:var(--r);background:var(--surface);display:grid;gap:8px;justify-items:start}
+.mk-state h3{font-size:1.3rem}
+.mk-state p{color:var(--muted);max-width:60ch}
+.mk-scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55}
+.mk-modal{position:fixed;inset:0;z-index:65;overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.mk-box{max-width:880px;margin:0 auto;background:var(--surface);border:1px solid var(--ink);border-radius:var(--r);padding:22px;min-width:0}
+.mk-top{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:18px}
+.mk-top h2{font-size:clamp(1.4rem,3vw,2rem)}
+.mk-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;margin-bottom:20px}
+@media (max-width:620px){.mk-g{grid-template-columns:minmax(0,1fr)}}
+.fl{display:grid;gap:6px;font-family:var(--font-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:0;align-content:start}
+.fl .field{font-family:var(--font-body);font-size:1rem;letter-spacing:0;text-transform:none;color:var(--ink)}
+.fl.full{grid-column:1/-1}
+.mk-form textarea.field{resize:vertical;min-height:110px}
+.mk-form fieldset{margin:0 0 22px}
+.hint{font-size:.85rem;color:var(--muted);margin:0 0 10px}
+.drop{position:relative;display:grid;gap:4px;justify-items:center;text-align:center;padding:24px 16px;border:1.5px dashed var(--ink);border-radius:var(--r);background:var(--bg);cursor:pointer}
+.drop:hover,.drop.over{background:var(--surface-2)}
+.drop:focus-within{outline:2px solid var(--pcb);outline-offset:2px}
+.drop input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.drop b{font-family:var(--font-display);font-size:1.1rem}
+.drop span{color:var(--muted);font-size:.88rem}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:12px}
+.th{margin:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--bg);display:grid}
+.th img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.th div{display:flex;flex-wrap:wrap;gap:6px;padding:6px;font-family:var(--font-mono);font-size:.7rem}
+.th button{border:1px solid var(--line);background:var(--surface);border-radius:4px;cursor:pointer;padding:4px 8px;min-height:30px}
+.th .cov{color:var(--copper);align-self:center;padding:4px 2px}
+.mk-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.mk-row input:nth-of-type(1){flex:1 1 150px;min-width:0}
+.mk-row input:nth-of-type(2){flex:2 1 220px;min-width:0}
+.mk-err{color:var(--bad);font-weight:600;margin:0 0 12px}
+.mk-actions{display:flex;flex-wrap:wrap;gap:10px}
+.gal-main{display:grid;place-items:center;width:100%;aspect-ratio:4/3;object-fit:contain;background:var(--surface-2);border-radius:var(--r)}
+.gal-main svg{width:60%;height:auto}
+.gal-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.gal-strip button{padding:0;border:2px solid var(--line);border-radius:6px;overflow:hidden;cursor:pointer;background:var(--surface-2);width:76px;height:58px}
+.gal-strip button[aria-current="true"]{border-color:var(--pcb)}
+.gal-strip img{display:block;width:100%;height:100%;object-fit:cover}
+.d-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px}
+@media (max-width:760px){.d-grid{grid-template-columns:minmax(0,1fr)}}
+.d-grid h3{font-size:1.5rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.tag2{font-family:var(--font-mono);font-size:.74rem;padding:4px 8px;border:1px solid var(--line);border-radius:4px}
+.comp{width:100%;border-collapse:collapse;font-size:.9rem;margin:12px 0}
+.comp tr{border-top:1px dashed var(--line)}
+.comp th{text-align:left;font-family:var(--font-mono);font-weight:500;font-size:.78rem;color:var(--muted);padding:8px 12px 8px 0;vertical-align:top;white-space:nowrap}
+.comp td{padding:8px 0;overflow-wrap:anywhere}
+.d-sec{margin-top:14px}
+.d-sec h4{font-family:var(--font-mono);font-size:.76rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;font-weight:500}
+.d-sec p{white-space:pre-wrap;overflow-wrap:anywhere}
+.d-act{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.traces .pulse{animation:none}}
+</style>
+
+<div class="strip"><div class="wrap"><span>Annunci con foto e componenti elencati uno per uno</span><span>Contatto diretto tra venditore e compratore</span></div></div>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Quarzo Computer, inizio pagina">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path class="s fg" d="M16 2 28 9v14L16 30 4 23V9z"/><path class="s" d="M4 9l12 7 12-7M16 16v14"/><path class="sc" d="M10 12.5l6 3.5"/></svg>
+      <b>Quarzo</b><small>COMPUTER</small>
+    </a>
+    <nav class="main" aria-label="Sezioni">
+      <a href="#come-funziona">Come funziona</a>
+      <a href="#mercato">Mercato</a>
+      <a href="#guida">Come scegliere</a>
+      <a href="#sicurezza">Sicurezza</a>
+      <a href="#faq">Domande</a>
+    </nav>
+    <a class="btn primary sm hdr-cta" href="#mercato">Vedi gli annunci</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <svg class="traces" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g class="base">
+      <path d="M0 90H240L290 140H610L650 100H1200"/>
+      <path d="M0 300H180L230 350H430L470 390H820L860 430H1200"/>
+      <path d="M0 480H330L380 530H760L800 490H1200"/>
+      <path d="M520 0V60L560 100"/>
+      <path d="M980 560V470L940 430"/>
+    </g>
+    <circle cx="290" cy="140" r="6"/><circle cx="650" cy="100" r="6"/><circle cx="230" cy="350" r="6"/><circle cx="860" cy="430" r="6"/><circle cx="380" cy="530" r="6"/>
+    <path class="pulse" d="M0 90H240L290 140H610L650 100H1200"/>
+    <path class="pulse b" d="M0 300H180L230 350H430L470 390H820L860 430H1200"/>
+    <path class="pulse c" d="M0 480H330L380 530H760L800 490H1200"/>
+  </svg>
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Mercato dell'usato tra privati</p>
+      <h1>Compra e vendi computer usati, con <em>ogni componente</em> in chiaro.</h1>
+      <p class="lead">Chi vende elenca processore, memoria, scheda video e tutto il resto, e aggiunge le foto. Chi compra sa cosa sta prendendo prima ancora di scrivere.</p>
+      <div class="cta">
+        <a class="btn primary" href="#mercato">Vedi gli annunci</a>
+        <a class="btn" href="#come-funziona">Come funziona</a>
+      </div>
+      <dl class="facts">
+        <div><dt>5</dt><dd>foto per ogni annuncio</dd></div>
+        <div><dt>24</dt><dd>righe per elencare i componenti</dd></div>
+        <div><dt>8</dt><dd>annunci per ogni venditore</dd></div>
+        <div><dt>1 a 1</dt><dd>contatto diretto tra le persone</dd></div>
+      </dl>
+    </div>
+    <aside class="sheet" aria-label="Esempio di scheda tecnica">
+      <div class="sheet-top"><span>Scheda tecnica</span><span>Esempio</span></div>
+      <svg class="draw" viewBox="0 0 520 290" role="img" aria-label="Disegno tecnico di un portatile con quattro punti numerati">
+        <path class="s f2" d="M130 20h260a10 10 0 0 1 10 10v176H120V30a10 10 0 0 1 10-10z"/>
+        <rect class="s f1" x="136" y="36" width="248" height="154" rx="3"/>
+        <path class="sc" d="M156 58h90M156 74h140M156 90h60"/>
+        <rect class="fg" x="156" y="112" width="70" height="56" rx="3" opacity=".9"/>
+        <path class="sc" d="M244 130h116M244 146h96M244 162h110"/>
+        <path class="s f1" d="M70 206h380l-22 38H92z"/>
+        <path class="s" d="M220 206v10h80v-10"/>
+        <path class="sc" d="M96 232h328" opacity=".5"/>
+        <g class="s"><path d="M240 54V24"/><path d="M190 225v38"/><path d="M260 225v38" /><path d="M330 225v38"/></g>
+        <g><circle class="fc" cx="240" cy="13" r="11"/><circle class="fc" cx="190" cy="274" r="11"/><circle class="fc" cx="260" cy="274" r="11"/><circle class="fc" cx="330" cy="274" r="11"/></g>
+        <g font-family="IBM Plex Mono, monospace" font-size="12" font-weight="500" text-anchor="middle" style="fill:var(--surface)"><text x="240" y="17.5">1</text><text x="190" y="278.5">2</text><text x="260" y="278.5">3</text><text x="330" y="278.5">4</text></g>
+      </svg>
+      <h3>Come si legge una scheda</h3>
+      <ol class="legend" style="list-style:none">
+        <li><i>1</i><span>Schermo: diagonale, risoluzione e tipo di pannello</span></li>
+        <li><i>2</i><span>Processore: modello esatto e generazione</span></li>
+        <li><i>3</i><span>Memoria e archiviazione: quantità, tipo e velocità</span></li>
+        <li><i>4</i><span>Batteria: capacità residua e cicli di carica</span></li>
+      </ol>
+      <div class="sheet-foot">
+        <p class="mono" style="font-size:.8rem;color:var(--muted);max-width:30ch">Più dettagli metti, meno domande ricevi.</p>
+        <a class="btn primary sm" href="#mercato">Vedi gli annunci</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="how" id="come-funziona" aria-label="Come funziona">
+  <div class="wrap">
+    <ol>
+      <li><span class="n">PASSO 1</span><b>Il venditore pubblica</b><span>Compila il modulo, elenca ogni componente e carica fino a 5 foto.</span></li>
+      <li><span class="n">PASSO 2</span><b>Il compratore guarda e contatta</b><span>Legge la scheda completa e copia il contatto indicato dal venditore.</span></li>
+      <li><span class="n">PASSO 3</span><b>Si accordano tra loro</b><span>Prezzo, incontro e pagamento li decidono loro. Il sito non gestisce soldi né spedizioni.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec" id="mercato">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow" id="mkEyebrow">Mercato dell'usato</p><h2>Computer dei privati, con ogni componente</h2></div>
+      <div style="display:grid;gap:10px;justify-items:start;max-width:46ch">
+        <p style="color:var(--muted)">Hai un computer da vendere? Pubblica l'annuncio con tutti i componenti e le foto. Chi compra vede cosa c'è dentro prima di scriverti.</p>
+        <button class="btn primary" id="mkNew" type="button" disabled>Pubblica il tuo computer</button>
+        <p class="hint" id="mkGate" style="margin:0">Controllo il tuo accesso…</p>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="chips" id="mkChips" role="group" aria-label="Filtra gli annunci per tipo">
+        <button class="mchip" type="button" data-mf="tutti" aria-pressed="true">Tutti</button>
+        <button class="mchip" type="button" data-mf="portatile" aria-pressed="false">Portatili</button>
+        <button class="mchip" type="button" data-mf="fisso" aria-pressed="false">Fissi</button>
+        <button class="mchip" type="button" data-mf="compatto" aria-pressed="false">Compatti</button>
+      </div>
+      <div class="grow"><label for="mkQ" class="sr">Cerca negli annunci</label><input class="field" id="mkQ" type="search" placeholder="Cerca: ThinkPad, RTX, Milano…" autocomplete="off"></div>
+      <div><label for="mkSort" class="sr">Ordina gli annunci</label><select class="field" id="mkSort"><option value="rec">Più recenti</option><option value="asc">Prezzo crescente</option><option value="desc">Prezzo decrescente</option></select></div>
+      <label class="ck" for="mkSold"><input type="checkbox" id="mkSold"> Mostra anche i venduti</label>
+    </div>
+    <p class="count" id="mkCount" role="status" aria-live="polite"></p>
+    <div id="mkNotice"></div>
+    <div class="grid" id="mkGrid"><div class="mk-state" style="grid-column:1/-1"><p>Carico gli annunci…</p></div></div>
+    <p class="mk-note">Gli annunci sono pubblicati dai privati. Quarzo non gestisce pagamenti né spedizioni: accordatevi direttamente, controllate il computer di persona e diffidate di chi chiede pagamenti anticipati.</p>
+  </div>
+</section>
+
+<section class="sec" id="guida">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow">Come scegliere</p><h2>Quanta macchina serve davvero</h2></div>
+      <p>Tre profili con la configurazione minima che consigliamo. Spendere di più sul processore serve meno che avere abbastanza memoria e un SSD veloce.</p>
+    </div>
+    <div class="profiles">
+      <article class="profile">
+        <h3>Studio e ufficio</h3>
+        <p>Documenti, posta, videochiamate, qualche foglio di calcolo pesante e molte schede aperte.</p>
+        <dl class="specs"><dt>Processore</dt><dd>Core i5 o Ryzen 5</dd><dt>Memoria</dt><dd>16 GB</dd><dt>SSD</dt><dd>512 GB NVMe</dd><dt>Scheda video</dt><dd>Integrata</dd></dl>
+        <a class="btn sm" href="#mercato">Vedi gli annunci</a>
+      </article>
+      <article class="profile">
+        <h3>Foto, video, progetti</h3>
+        <p>Montaggio, modelli 3D, programmazione con più macchine virtuali. Qui contano memoria e schermo.</p>
+        <dl class="specs"><dt>Processore</dt><dd>Core Ultra 7 o Ryzen 9</dd><dt>Memoria</dt><dd>32 GB o più</dd><dt>SSD</dt><dd>1 TB NVMe</dd><dt>Scheda video</dt><dd>RTX 4050 o superiore</dd></dl>
+        <a class="btn sm" href="#mercato">Vedi gli annunci</a>
+      </article>
+      <article class="profile">
+        <h3>Giochi</h3>
+        <p>Giocare in QHD a frequenza alta. La scheda video pesa più di tutto il resto messo insieme.</p>
+        <dl class="specs"><dt>Processore</dt><dd>Ryzen 7 o Core i7</dd><dt>Memoria</dt><dd>32 GB DDR5</dd><dt>SSD</dt><dd>1 TB NVMe</dd><dt>Scheda video</dt><dd>RTX 4070 o superiore</dd></dl>
+        <a class="btn sm" href="#mercato">Vedi gli annunci</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="sicurezza" style="padding-top:8px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="eyebrow">Sicurezza</p><h2>Comprare e vendere senza brutte sorprese</h2></div>
+      <p>Tra privati non ci sono garanzie automatiche. Queste abitudini evitano quasi tutti i problemi.</p>
+    </div>
+    <div class="tips">
+      <div class="tipbox">
+        <h3>Se compri</h3>
+        <ul>
+          <li><b>Chiedi la foto del retro e dell'etichetta.</b> Il modello deve coincidere con l'annuncio.</li>
+          <li><b>Incontrati e prova.</b> Accendilo, apri qualche programma e guarda lo schermo con uno sfondo bianco per trovare pixel rotti.</li>
+          <li><b>Controlla batteria e disco.</b> Su un portatile guarda la capacità residua. Su ogni computer guarda lo stato di salute dell'SSD.</li>
+          <li><b>Paga alla consegna.</b> Diffida di chi chiede anticipi, ricariche o pagamenti non tracciabili.</li>
+        </ul>
+      </div>
+      <div class="tipbox">
+        <h3>Se vendi</h3>
+        <ul>
+          <li><b>Elenca ogni componente con il modello esatto.</b> «Ryzen 5 5600X» dice più di «processore veloce».</li>
+          <li><b>Fotografa anche i difetti.</b> Graffi e segni dichiarati evitano discussioni.</li>
+          <li><b>Cancella i tuoi dati.</b> Esci dagli account e ripristina il computer prima di consegnarlo.</li>
+          <li><b>Usa un contatto dedicato.</b> Chi apre l'annuncio lo vede: meglio un'email solo per le vendite.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq" style="padding-top:8px">
+  <div class="wrap">
+    <div class="sec-head"><div><p class="eyebrow">Domande</p><h2>Prima di ordinare</h2></div></div>
+    <div class="faq">
+      <details><summary>Chi può pubblicare un annuncio?</summary><p>Possono pubblicare le persone a cui è stato dato l'accesso come Collaboratore. Chi ha solo accesso in lettura può guardare gli annunci ma non aggiungerne.</p></details>
+      <details><summary>Quanto costa pubblicare?</summary><p>Al momento pubblicare non ha costi e non c'è nessuna commissione sulla vendita.</p></details>
+      <details><summary>Come contatto il venditore?</summary><p>Apri la scheda dell'annuncio e copia il contatto che il venditore ha indicato, email o telefono. Il sito non ha messaggi interni.</p></details>
+      <details><summary>Come si paga e come arriva il computer?</summary><p>Lo decidono compratore e venditore. Il sito non gestisce pagamenti né spedizioni. Il consiglio è incontrarsi, provare il computer e pagare alla consegna.</p></details>
+      <details><summary>Posso modificare un annuncio già pubblicato?</summary><p>Per ora no. Puoi eliminarlo e pubblicarlo di nuovo, oppure segnarlo come venduto quando hai finito.</p></details>
+      <details><summary>Cosa succede alle mie foto?</summary><p>Il tuo browser le riduce prima di salvarle. Restano finché non elimini l'annuncio e le vede chiunque apra la scheda.</p></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b>Quarzo Computer</b><p style="margin-top:6px">Sito dimostrativo. Il marchio e i testi sono di fantasia. Gli annunci sono pubblicati dai privati, non da Quarzo.</p></div>
+    <p class="mono" style="font-size:.8rem">Prezzi in euro, decisi dai venditori</p>
+  </div>
+</footer>
+
+<div class="mk-scrim" id="mkScrim" hidden></div>
+<div class="mk-modal" id="mkModal" role="dialog" aria-modal="true" aria-labelledby="mkModalT" hidden>
+  <div class="mk-box">
+    <div class="mk-top"><h2 id="mkModalT"></h2><button class="btn sm" id="mkClose" type="button">Chiudi</button></div>
+    <div id="mkBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+  var EUR = function(n){return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n)};
+  var $ = function(s,r){return (r||document).querySelector(s)};
+
+  /* ---------- pictograms ---------- */
+  function dev(k){
+    var d={
+      laptop:'<path class="s f1" d="M52 14h96a6 6 0 0 1 6 6v68H46V20a6 6 0 0 1 6-6z"/><rect class="s f2" x="54" y="22" width="92" height="58" rx="2"/><path class="sc" d="M64 34h40M64 44h58"/><path class="s f1" d="M24 96h152l-10 16H34z"/><path class="s" d="M88 96v4h24v-4"/>',
+      tower:'<rect class="s f1" x="66" y="8" width="68" height="118" rx="6"/><rect class="s f2" x="74" y="18" width="52" height="52" rx="3"/><circle class="s" cx="100" cy="44" r="17"/><circle class="fc" cx="100" cy="44" r="4"/><path class="sc" d="M76 82h48M76 90h48M76 98h48"/><circle class="fg" cx="124" cy="112" r="3.5"/><path class="s" d="M80 126v6M120 126v6"/>',
+      mini:'<rect class="s f1" x="46" y="52" width="108" height="46" rx="9"/><path class="sc" d="M60 82h40"/><circle class="fg" cx="136" cy="68" r="3.5"/><rect class="s f2" x="104" y="74" width="12" height="5" rx="2"/><rect class="s f2" x="122" y="74" width="12" height="5" rx="2"/><path class="s" d="M60 98v5M140 98v5"/>',
+      aio:'<rect class="s f1" x="28" y="10" width="144" height="92" rx="6"/><rect class="s f2" x="36" y="18" width="128" height="68" rx="2"/><path class="sc" d="M48 34h50M48 46h72"/><rect class="fg" x="120" y="54" width="34" height="24" rx="2" opacity=".9"/><path class="s f1" d="M86 102l-6 14h40l-6-14"/><path class="s" d="M70 116h60"/>'
+    };
+    return '<svg viewBox="0 0 200 132" role="img" aria-hidden="true">'+d[k]+'</svg>';
+  }
+
+  /* ---------- utilità ---------- */
+  var toastT;
+  function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true},2600)}
+  document.addEventListener('click',function(e){
+    var cp=e.target.closest('[data-copy]');
+    if(!cp)return;
+    var txt=cp.dataset.copy;
+    var done=function(){var o=cp.textContent;cp.textContent='Copiato';setTimeout(function(){cp.textContent=o},1500)};
+    try{navigator.clipboard.writeText(txt).then(done,function(){toast('Copia non riuscita, seleziona il testo a mano')})}catch(err){toast('Copia non riuscita, seleziona il testo a mano')}
+  });
+
+  /* ---------- mercato dell'usato ---------- */
+  var MKT={portatile:['Portatile','laptop'],fisso:['Computer fisso','tower'],aio:['All-in-One','aio'],mini:['Mini PC','mini']};
+  var MKC={nuovo:'Come nuovo',ottime:'Ottime condizioni',buone:'Buone condizioni',sistemare:'Da sistemare'};
+  var MKPRE={
+    fisso:[['Processore','Es. Ryzen 5 5600X'],['Scheda madre','Es. B550, socket AM4'],['Memoria RAM','Es. 2 × 16 GB DDR4 3200 MHz'],['Scheda video','Es. RTX 3060 12 GB'],['Archiviazione','Es. SSD NVMe da 1 TB'],['Alimentatore','Es. 650 W 80 Plus Gold'],['Case','Es. Midi tower con 3 ventole'],['Raffreddamento','Es. Dissipatore ad aria'],['Sistema operativo','Es. Windows 11 Pro']],
+    portatile:[['Processore','Es. Core i5-1135G7'],['Memoria RAM','Es. 16 GB DDR4, espandibile'],['Scheda video','Es. Integrata'],['Archiviazione','Es. SSD da 512 GB'],['Schermo','Es. 15,6″ Full HD IPS'],['Batteria','Es. 86% di capacità, 210 cicli'],['Porte e connessioni','Es. 2 × USB-C, HDMI, jack audio'],['Sistema operativo','Es. Windows 11 Home']],
+    aio:[['Processore','Es. Core i5-10500T'],['Memoria RAM','Es. 16 GB DDR4'],['Archiviazione','Es. SSD da 512 GB'],['Schermo','Es. 24″ Full HD'],['Scheda video','Es. Integrata'],['Porte e connessioni','Es. 4 × USB, HDMI in'],['Sistema operativo','Es. Windows 11 Home']],
+    mini:[['Processore','Es. Core i5-8500T'],['Memoria RAM','Es. 16 GB DDR4'],['Archiviazione','Es. SSD da 256 GB'],['Scheda video','Es. Integrata'],['Porte e connessioni','Es. 4 × USB, 2 × DisplayPort'],['Alimentatore','Es. Esterno da 65 W'],['Sistema operativo','Es. Windows 11 Pro']]
+  };
+  var MKLABELS=['Processore','Scheda madre','Memoria RAM','Scheda video','Archiviazione','Alimentatore','Case','Raffreddamento','Ventole','Schermo','Monitor incluso','Batteria','Porte e connessioni','Scheda audio','Scheda di rete','Lettore ottico','Tastiera','Mouse','Webcam','Sistema operativo'];
+  var MK={db:null,user:null,uid:null,canWrite:false,isOwner:false,docs:{},items:[],definitive:false,failed:false,f:'tutti',q:'',sort:'rec',sold:false,names:{},photos:{},form:null,rowN:0,rt:0,cur:'',sel:0,last:null};
+  var mkQueue=Promise.resolve();
+  var BLANK='data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function safeImg(s){return typeof s==='string'&&s.indexOf('data:image/jpeg;base64,')===0&&s.length<260000}
+  function okId(s){return typeof s==='string'&&/^[A-Za-z0-9_-]{1,60}$/.test(s)}
+  function mkDate(ts){try{return new Date(ts).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}catch(e){return ''}}
+  function specsOf(it){return (Array.isArray(it.specs)?it.specs:[]).filter(function(s){return Array.isArray(s)&&typeof s[0]==='string'&&typeof s[1]==='string'})}
+  function pidsOf(it){return (Array.isArray(it.photos)?it.photos:[]).filter(okId)}
+  function mkWrite(fn){var p=mkQueue.then(fn);mkQueue=p.catch(function(){});return p}
+  function mkRebuild(){
+    MK.items=[];
+    Object.keys(MK.docs).forEach(function(u){MK.docs[u].forEach(function(it){if(it&&typeof it==='object'&&okId(it.id))MK.items.push(Object.assign({},it,{uid:u}))})});
+  }
+  function mkMutate(uid,fn){
+    return mkWrite(function(){
+      var next=fn((MK.docs[uid]||[]).slice());
+      var body={items:next,updatedAt:Date.now()};
+      if(JSON.stringify(body).length>235000){var e=new Error('size');e.code='size';return Promise.reject(e)}
+      return MK.db.doc('listings/'+uid).set(body).then(function(){MK.docs[uid]=next;mkRebuild()});
+    });
+  }
+  function mkMsg(e){
+    var c=e&&e.code;
+    if(c==='size')return 'Hai raggiunto lo spazio massimo per i tuoi annunci. Elimina un annuncio vecchio o usa meno foto.';
+    if(c==='quota_exceeded')return 'L\'archivio del sito è pieno. Riprova quando l\'amministratore avrà fatto spazio.';
+    if(c==='invalid_argument')return 'Non puoi pubblicare con il tuo livello di accesso. Serve l\'accesso come Collaboratore.';
+    if(c==='resource_exhausted')return 'Troppe richieste in poco tempo. Aspetta qualche secondo e riprova.';
+    return 'Non sono riuscito a salvare. Controlla la connessione e riprova.';
+  }
+  function mkNotice(msg){$('#mkNotice').innerHTML=msg?'<div class="mk-state" style="margin-bottom:16px"><p>'+esc(msg)+'</p></div>':''}
+
+  /* modale */
+  function mkOpenModal(title,html){
+    MK.last=document.activeElement;
+    $('#mkModalT').textContent=title;$('#mkBody').innerHTML=html;
+    $('#mkScrim').hidden=false;$('#mkModal').hidden=false;$('#mkModal').scrollTop=0;
+    document.body.style.overflow='hidden';
+  }
+  function mkCloseModal(){
+    $('#mkScrim').hidden=true;$('#mkModal').hidden=true;$('#mkBody').innerHTML='';
+    document.body.style.overflow='';MK.form=null;MK.cur='';
+    if(MK.last&&MK.last.focus)try{MK.last.focus()}catch(e){}
+  }
+  $('#mkClose').addEventListener('click',mkCloseModal);
+  $('#mkScrim').addEventListener('click',mkCloseModal);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('#mkModal').hidden)mkCloseModal()});
+
+  /* foto: ridimensionate nel browser e salvate come piccole immagini JPEG */
+  function fileToImg(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file);var im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error('img'))};im.src=u})}
+  function shrink(im,max,q){
+    var s=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+    var w=Math.max(1,Math.round(im.naturalWidth*s)),h=Math.max(1,Math.round(im.naturalHeight*s));
+    var c=document.createElement('canvas');c.width=w;c.height=h;
+    var x=c.getContext('2d');x.fillStyle='#ffffff';x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);
+    return c.toDataURL('image/jpeg',q);
+  }
+  async function makePhoto(file){
+    var im=await fileToImg(file);var q=0.76,max=1100,d='';
+    for(var i=0;i<5;i++){d=shrink(im,max,q);if(d.length<190000)break;q-=0.1;max=Math.round(max*0.85)}
+    return {full:d,thumb:shrink(im,360,0.6)};
+  }
+  function renderThumbs(){
+    var box=$('#mkThumbs');if(!box||!MK.form)return;
+    box.innerHTML=MK.form.photos.map(function(p,i){
+      return '<figure class="th"><img src="'+esc(p.thumb)+'" alt="Foto '+(i+1)+' da pubblicare"><div>'+(i===0?'<span class="cov">Copertina</span>':'<button type="button" data-ph-cover="'+i+'">Copertina</button>')+'<button type="button" data-ph-del="'+i+'">Togli</button></div></figure>';
+    }).join('');
+    var d=$('#mkDropT');if(d)d.textContent=MK.form.photos.length>=5?'Hai raggiunto il massimo di 5 foto':'Trascina le foto qui o tocca per scegliere';
+  }
+  async function mkAddFiles(files){
+    var err=$('#mkErr');err.hidden=true;
+    var room=5-MK.form.photos.length;
+    var list=Array.prototype.slice.call(files).filter(function(f){return /^image\//.test(f.type)}).slice(0,room);
+    if(!list.length){err.textContent=room>0?'Scegli immagini JPG, PNG o WebP.':'Puoi aggiungere al massimo 5 foto.';err.hidden=false;return}
+    for(var i=0;i<list.length;i++){
+      try{MK.form.photos.push(await makePhoto(list[i]))}
+      catch(e){err.textContent='Non riesco a leggere «'+list[i].name+'». Usa foto in formato JPG, PNG o WebP.';err.hidden=false}
+    }
+    renderThumbs();
+  }
+
+  /* modulo */
+  function rowHtml(label,ph,val){
+    var n=++MK.rowN;
+    return '<div class="mk-row" data-row><label class="sr" for="mk-cl-'+n+'">Componente</label><input class="field" id="mk-cl-'+n+'" list="mkLabels" maxlength="40" placeholder="Componente" value="'+esc(label)+'"><label class="sr" for="mk-cv-'+n+'">Dettaglio del componente</label><input class="field" id="mk-cv-'+n+'" maxlength="120" placeholder="'+esc(ph)+'" value="'+esc(val||'')+'"><button class="btn sm" type="button" data-row-del aria-label="Togli questo componente">Togli</button></div>';
+  }
+  function mkPreset(type){$('#mkRows').innerHTML=(MKPRE[type]||MKPRE.fisso).map(function(r){return rowHtml(r[0],r[1],'')}).join('')}
+  function mkFormHtml(){
+    var opts=Object.keys(MKT).map(function(k){return '<option value="'+k+'">'+MKT[k][0]+'</option>'}).join('');
+    var conds=Object.keys(MKC).map(function(k){return '<option value="'+k+'"'+(k==='ottime'?' selected':'')+'>'+MKC[k]+'</option>'}).join('');
+    var dl='<datalist id="mkLabels">'+MKLABELS.map(function(l){return '<option value="'+l+'">'}).join('')+'</datalist>';
+    return '<form class="mk-form" id="mkForm" novalidate>'+
+      '<div class="mk-g">'+
+        '<label class="fl full" for="mk-title">Titolo dell\'annuncio<input class="field" id="mk-title" maxlength="80" placeholder="Es. PC fisso gaming Ryzen 5 con RTX 3060" required></label>'+
+        '<label class="fl" for="mk-type">Tipo di computer<select class="field" id="mk-type">'+opts+'</select></label>'+
+        '<label class="fl" for="mk-brand">Marca e modello<input class="field" id="mk-brand" maxlength="80" placeholder="Es. Lenovo ThinkPad T14 Gen 2"></label>'+
+        '<label class="fl" for="mk-cond">Condizioni<select class="field" id="mk-cond">'+conds+'</select></label>'+
+        '<label class="fl" for="mk-year">Anno di acquisto<input class="field" id="mk-year" type="number" inputmode="numeric" min="1995" max="2026" placeholder="Es. 2022"></label>'+
+        '<label class="fl" for="mk-price">Prezzo richiesto in euro<input class="field" id="mk-price" type="number" inputmode="numeric" min="0" max="99999" step="1" placeholder="Es. 650" required></label>'+
+        '<label class="fl" for="mk-city">Città o zona<input class="field" id="mk-city" maxlength="60" placeholder="Es. Milano, ritiro a mano"></label>'+
+        '<label class="ck full" for="mk-neg" style="grid-column:1/-1"><input type="checkbox" id="mk-neg"> Il prezzo è trattabile</label>'+
+      '</div>'+
+      '<fieldset><legend>Foto (fino a 5)</legend><p class="hint">Mostra il computer da davanti, il retro con le porte e gli eventuali difetti. La prima foto è la copertina.</p>'+
+        '<label class="drop" id="mkDrop" for="mk-photos"><b id="mkDropT">Trascina le foto qui o tocca per scegliere</b><span>JPG, PNG o WebP. Le riduciamo noi.</span><input id="mk-photos" type="file" accept="image/*" multiple></label>'+
+        '<div class="thumbs" id="mkThumbs"></div></fieldset>'+
+      '<fieldset><legend>Componenti</legend><p class="hint">Scrivi cosa c\'è dentro, uno per riga. Puoi togliere le righe che non servono e aggiungerne altre.</p>'+dl+
+        '<div id="mkRows"></div><button class="btn sm" type="button" id="mkAddRow">Aggiungi un componente</button></fieldset>'+
+      '<div class="mk-g">'+
+        '<label class="fl full" for="mk-incl">Cosa è incluso<input class="field" id="mk-incl" maxlength="160" placeholder="Es. Alimentatore, tastiera, mouse, scatola originale"></label>'+
+        '<label class="fl full" for="mk-desc">Descrizione e difetti<textarea class="field" id="mk-desc" rows="5" maxlength="1500" placeholder="Come l\'hai usato, cosa è stato sostituito, eventuali graffi o problemi. Più sei preciso, meno domande ricevi."></textarea></label>'+
+        '<label class="fl full" for="mk-contact">Come contattarti<input class="field" id="mk-contact" maxlength="120" placeholder="Email o numero di telefono" required></label>'+
+        '<p class="hint full" style="grid-column:1/-1;margin:0">Il contatto sarà visibile a chiunque apra l\'annuncio. Se preferisci, usa un\'email dedicata.</p>'+
+        '<label class="ck" for="mk-ok" style="grid-column:1/-1"><input type="checkbox" id="mk-ok"> Confermo che i dati sono corretti e che posso vendere questo computer</label>'+
+      '</div>'+
+      '<p class="mk-err" id="mkErr" role="alert" hidden></p>'+
+      '<div class="mk-actions"><button class="btn primary" type="submit" id="mkSubmit">Pubblica l\'annuncio</button><button class="btn" type="button" id="mkCancel">Annulla</button></div>'+
+    '</form>';
+  }
+  function mkOpenForm(){
+    MK.form={photos:[]};MK.rowN=0;
+    mkOpenModal('Pubblica il tuo computer',mkFormHtml());
+    mkPreset('fisso');renderThumbs();$('#mk-title').focus();
+  }
+  async function mkSubmit(){
+    var err=$('#mkErr');
+    function bad(m){err.textContent=m;err.hidden=false;try{err.scrollIntoView({block:'nearest'})}catch(e){}}
+    err.hidden=true;
+    var g=function(id){return ($('#'+id).value||'').trim()};
+    var title=g('mk-title'),contact=g('mk-contact'),price=parseFloat($('#mk-price').value),yearRaw=g('mk-year');
+    var rows=[];
+    Array.prototype.forEach.call(document.querySelectorAll('#mkRows [data-row]'),function(r){var inp=r.querySelectorAll('input');var l=inp[0].value.trim(),v=inp[1].value.trim();if(l&&v)rows.push([l.slice(0,40),v.slice(0,120)])});
+    if(title.length<4)return bad('Scrivi un titolo di almeno 4 caratteri.');
+    if(!(price>=0)||isNaN(price))return bad('Indica il prezzo in euro. Se lo regali, scrivi 0.');
+    if(yearRaw&&(+yearRaw<1995||+yearRaw>2026))return bad('L\'anno di acquisto deve essere tra 1995 e 2026.');
+    if(rows.length<2)return bad('Compila almeno due componenti, per esempio processore e memoria.');
+    if(contact.length<5)return bad('Indica un\'email o un telefono per farti contattare.');
+    if(!$('#mk-ok').checked)return bad('Spunta la conferma prima di pubblicare.');
+    if((MK.docs[MK.uid]||[]).length>=8)return bad('Hai già 8 annunci. Elimina uno vecchio e poi pubblica.');
+    var btn=$('#mkSubmit');btn.disabled=true;btn.textContent='Pubblico…';
+    var stamp=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    var pids=[];
+    try{
+      for(var i=0;i<MK.form.photos.length;i++){
+        var pid='p'+stamp+i;
+        await MK.db.doc('listings/'+MK.uid+'/photos/'+pid).set({d:MK.form.photos[i].full});
+        pids.push(pid);
+      }
+      var item={id:'a'+stamp,title:title,type:$('#mk-type').value,brand:g('mk-brand'),cond:$('#mk-cond').value,year:yearRaw?+yearRaw:null,price:Math.round(price),neg:$('#mk-neg').checked,city:g('mk-city'),specs:rows,incl:g('mk-incl'),desc:g('mk-desc'),contact:contact,photos:pids,thumb:MK.form.photos[0]?MK.form.photos[0].thumb:'',ts:Date.now(),sold:false};
+      await mkMutate(MK.uid,function(items){return [item].concat(items)});
+      mkCloseModal();renderMk();toast('Annuncio pubblicato');
+      var m=$('#mercato');if(m)m.scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(e){
+      pids.forEach(function(p){try{MK.db.doc('listings/'+MK.uid+'/photos/'+p).delete().catch(function(){})}catch(x){}});
+      var b=$('#mkSubmit');if(b){b.disabled=false;b.textContent='Pubblica l\'annuncio'}
+      bad(mkMsg(e));
+    }
+  }
+
+  /* elenco */
+  function mkCard(it){
+    var t=MKT[it.type]||MKT.fisso;
+    var fig=safeImg(it.thumb)?'<figure class="photo"><img src="'+esc(it.thumb)+'" alt="Foto di '+esc(it.title)+'" loading="lazy">':'<figure>'+dev(t[1]);
+    fig+='<span class="badge">'+esc(MKC[it.cond]||'Usato')+'</span>';
+    if(it.sold)fig+='<span class="badge off">Venduto</span>';else if(it.uid===MK.uid)fig+='<span class="badge off">Tuo annuncio</span>';
+    fig+='</figure>';
+    var rows=specsOf(it).slice(0,4).map(function(s){return '<dt>'+esc(s[0])+'</dt><dd>'+esc(s[1])+'</dd>'}).join('');
+    var seller=(MK.names[it.uid]&&MK.names[it.uid].name)||'Un venditore';
+    var sub=[t[0],it.brand,it.city].filter(Boolean).map(esc).join(' · ');
+    return '<article class="prod">'+fig+'<div class="body"><h3>'+esc(it.title)+'</h3><p class="sub">'+sub+'</p><dl class="specs">'+rows+'</dl><p class="seller">Di '+esc(seller)+' · '+esc(mkDate(it.ts))+'</p><div class="buy"><div><span class="price big">'+EUR(+it.price||0)+'</span>'+(it.neg?'<div class="stock low" style="margin-top:2px">Trattabile</div>':'')+'</div><button class="btn primary sm" type="button" data-mk-open="'+esc(it.uid+'|'+it.id)+'">Vedi scheda</button></div></div></article>';
+  }
+  async function renderMk(){
+    var my=++MK.rt;
+    if(MK.failed||!MK.db)return;
+    var ids=[];MK.items.forEach(function(i){if(ids.indexOf(i.uid)<0)ids.push(i.uid)});
+    if(MK.user&&ids.length){try{MK.names=await MK.user.profiles(ids)}catch(e){}}
+    if(my!==MK.rt)return;
+    var q=MK.q.trim().toLowerCase();
+    var list=MK.items.filter(function(it){
+      if(!MK.sold&&it.sold)return false;
+      if(MK.f==='portatile'&&it.type!=='portatile')return false;
+      if(MK.f==='fisso'&&it.type!=='fisso')return false;
+      if(MK.f==='compatto'&&it.type!=='aio'&&it.type!=='mini')return false;
+      if(!q)return true;
+      var hay=[it.title,it.brand,it.city,it.desc].concat(specsOf(it).map(function(s){return s.join(' ')})).join(' ').toLowerCase();
+      return q.split(/\s+/).every(function(t){return hay.indexOf(t)>-1});
+    });
+    if(MK.sort==='asc')list.sort(function(a,b){return a.price-b.price});
+    else if(MK.sort==='desc')list.sort(function(a,b){return b.price-a.price});
+    else list.sort(function(a,b){return (b.ts||0)-(a.ts||0)});
+    var active=MK.items.filter(function(i){return !i.sold}).length;
+    $('#mkEyebrow').textContent='Mercato dell\'usato'+(MK.definitive?' · '+active+(active===1?' annuncio':' annunci'):'');
+    var grid=$('#mkGrid');
+    if(!MK.definitive&&!MK.items.length){grid.innerHTML='<div class="mk-state" style="grid-column:1/-1"><p>Carico gli annunci…</p></div>';$('#mkCount').textContent='';return}
+    if(!MK.items.length){
+      grid.innerHTML='<div class="mk-state" style="grid-column:1/-1"><h3>Ancora nessun annuncio</h3><p>Qui compariranno i computer messi in vendita dai privati, ognuno con foto e scheda completa dei componenti. Il primo può essere il tuo.</p>'+(MK.canWrite?'<button class="btn primary" type="button" data-mk-new>Pubblica il tuo computer</button>':'')+'</div>';
+      $('#mkCount').textContent='';return;
+    }
+    grid.innerHTML=list.length?list.map(mkCard).join(''):'<div class="mk-state" style="grid-column:1/-1"><p>Nessun annuncio corrisponde alla ricerca. Prova con meno parole o scegli «Tutti».</p></div>';
+    $('#mkCount').textContent=list.length+(list.length===1?' annuncio':' annunci');
+    Array.prototype.forEach.call(document.querySelectorAll('.mchip'),function(c){c.setAttribute('aria-pressed',String(c.dataset.mf===MK.f))});
+  }
+
+  /* dettaglio */
+  function loadPhoto(uid,pid){
+    if(MK.photos[pid]!==undefined)return Promise.resolve(MK.photos[pid]);
+    return MK.db.doc('listings/'+uid+'/photos/'+pid).get().then(function(s){
+      var v=s.exists&&s.data()?s.data().d:'';var d=safeImg(v)?v:'';MK.photos[pid]=d;return d;
+    }).catch(function(){return ''});
+  }
+  function mkOpenDetail(uid,id){
+    var it=MK.items.filter(function(i){return i.uid===uid&&i.id===id})[0];
+    if(!it)return;
+    var t=MKT[it.type]||MKT.fisso,pids=pidsOf(it),specs=specsOf(it);
+    var seller=(MK.names[uid]&&MK.names[uid].name)||'Un venditore';
+    MK.cur=uid+'|'+id;MK.sel=0;
+    var gal;
+    if(pids.length){
+      gal='<img class="gal-main" id="galMain" src="'+(safeImg(it.thumb)?esc(it.thumb):BLANK)+'" alt="Foto 1 di '+esc(it.title)+'">';
+      if(pids.length>1)gal+='<div class="gal-strip">'+pids.map(function(p,i){return '<button type="button" data-gal="'+i+'" aria-label="Mostra la foto '+(i+1)+'"'+(i===0?' aria-current="true"':'')+'><img src="'+(i===0&&safeImg(it.thumb)?esc(it.thumb):BLANK)+'" alt=""></button>'}).join('')+'</div>';
+    }else gal='<div class="gal-main">'+dev(t[1])+'</div>';
+    var tags='<span class="tag2">'+esc(t[0])+'</span><span class="tag2">'+esc(MKC[it.cond]||'Usato')+'</span>'+(it.year?'<span class="tag2">Acquistato nel '+esc(it.year)+'</span>':'')+(it.city?'<span class="tag2">'+esc(it.city)+'</span>':'')+(it.sold?'<span class="tag2">Venduto</span>':'');
+    var comp=specs.length?'<table class="comp"><tbody>'+specs.map(function(s){return '<tr><th scope="row">'+esc(s[0])+'</th><td>'+esc(s[1])+'</td></tr>'}).join('')+'</tbody></table>':'';
+    var right='<h3>'+esc(it.title)+'</h3>'+(it.brand?'<p class="seller" style="margin-top:4px">'+esc(it.brand)+'</p>':'')+
+      '<p style="margin-top:12px"><span class="price big">'+EUR(+it.price||0)+'</span>'+(it.neg?' <span class="tag2">Trattabile</span>':'')+'</p><div class="tags">'+tags+'</div>'+
+      '<div class="d-sec"><h4>Componenti</h4>'+comp+'</div>'+
+      (it.incl?'<div class="d-sec"><h4>Incluso</h4><p>'+esc(it.incl)+'</p></div>':'')+
+      (it.desc?'<div class="d-sec"><h4>Descrizione</h4><p>'+esc(it.desc)+'</p></div>':'')+
+      '<div class="d-sec"><h4>Contatto</h4><div class="row" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="mono" style="overflow-wrap:anywhere">'+esc(it.contact||'Non indicato')+'</span>'+(it.contact?'<button class="btn sm" type="button" data-copy="'+esc(it.contact)+'">Copia</button>':'')+'</div></div>'+
+      '<p class="seller" style="margin-top:14px">Venduto da '+esc(seller)+' · pubblicato il '+esc(mkDate(it.ts))+'</p>';
+    var act='';
+    if(uid===MK.uid)act='<div class="d-act"><button class="btn" type="button" data-sold>'+(it.sold?'Rimetti in vendita':'Segna come venduto')+'</button><button class="btn" type="button" data-del>Elimina il mio annuncio</button></div>';
+    else if(MK.isOwner)act='<div class="d-act"><button class="btn" type="button" data-del>Rimuovi annuncio (moderazione)</button></div>';
+    mkOpenModal(it.title,'<div class="d-grid"><div>'+gal+'</div><div>'+right+act+'</div></div>');
+    var key=MK.cur;
+    pids.forEach(function(pid,ix){
+      loadPhoto(uid,pid).then(function(d){
+        if(!d||MK.cur!==key)return;
+        var b=document.querySelector('[data-gal="'+ix+'"] img');if(b)b.src=d;
+        if(MK.sel===ix){var m=$('#galMain');if(m)m.src=d}
+      });
+    });
+  }
+  async function mkToggleSold(){
+    var p=MK.cur.split('|'),uid=p[0],id=p[1];
+    try{
+      await mkMutate(uid,function(items){return items.map(function(i){return i.id===id?Object.assign({},i,{sold:!i.sold}):i})});
+      renderMk();mkOpenDetail(uid,id);
+    }catch(e){toast(mkMsg(e))}
+  }
+  async function mkDelete(){
+    var p=MK.cur.split('|'),uid=p[0],id=p[1];
+    var it=MK.items.filter(function(i){return i.uid===uid&&i.id===id})[0];
+    try{
+      await mkMutate(uid,function(items){return items.filter(function(i){return i.id!==id})});
+      if(it)pidsOf(it).forEach(function(pid){try{MK.db.doc('listings/'+uid+'/photos/'+pid).delete().catch(function(){})}catch(x){}});
+      mkCloseModal();renderMk();toast('Annuncio eliminato');
+    }catch(e){toast(mkMsg(e))}
+  }
+
+  /* eventi del mercato */
+  $('#mkNew').addEventListener('click',function(){if(MK.canWrite)mkOpenForm()});
+  $('#mkChips').addEventListener('click',function(e){var b=e.target.closest('[data-mf]');if(b){MK.f=b.dataset.mf;renderMk()}});
+  $('#mkQ').addEventListener('input',function(e){MK.q=e.target.value;renderMk()});
+  $('#mkSort').addEventListener('change',function(e){MK.sort=e.target.value;renderMk()});
+  $('#mkSold').addEventListener('change',function(e){MK.sold=e.target.checked;renderMk()});
+  $('#mkGrid').addEventListener('click',function(e){
+    var o=e.target.closest('[data-mk-open]');
+    if(o){var p=o.dataset.mkOpen.split('|');mkOpenDetail(p[0],p[1]);return}
+    if(e.target.closest('[data-mk-new]')&&MK.canWrite)mkOpenForm();
+  });
+  var mkBody=$('#mkBody');
+  mkBody.addEventListener('click',function(e){
+    var t=e.target;
+    if(t.closest('#mkCancel')){mkCloseModal();return}
+    if(t.closest('#mkAddRow')){var box=$('#mkRows');if(box.children.length<24){box.insertAdjacentHTML('beforeend',rowHtml('','Es. dettaglio del componente',''));var ins=box.querySelectorAll('input');ins[ins.length-2].focus()}return}
+    var rd=t.closest('[data-row-del]');if(rd){var row=rd.closest('[data-row]');if(row)row.remove();return}
+    var pc=t.closest('[data-ph-cover]');if(pc&&MK.form){var i=+pc.dataset.phCover;var ph=MK.form.photos.splice(i,1)[0];MK.form.photos.unshift(ph);renderThumbs();return}
+    var pd=t.closest('[data-ph-del]');if(pd&&MK.form){MK.form.photos.splice(+pd.dataset.phDel,1);renderThumbs();return}
+    var gb=t.closest('[data-gal]');
+    if(gb){
+      var ix=+gb.dataset.gal;MK.sel=ix;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-gal]'),function(b){b.removeAttribute('aria-current')});
+      gb.setAttribute('aria-current','true');
+      var si=gb.querySelector('img'),m=$('#galMain');
+      if(m&&si&&si.src!==BLANK){m.src=si.src;m.alt='Foto '+(ix+1)}
+      return;
+    }
+    if(t.closest('[data-sold]')){mkToggleSold();return}
+    var dl=t.closest('[data-del]');
+    if(dl){
+      if(!dl.dataset.armed){dl.dataset.armed='1';dl.textContent='Conferma l\'eliminazione';return}
+      mkDelete();
+    }
+  });
+  mkBody.addEventListener('submit',function(e){e.preventDefault();if(e.target.id==='mkForm')mkSubmit()});
+  mkBody.addEventListener('change',function(e){
+    if(e.target.id==='mk-type'){
+      var any=false;Array.prototype.forEach.call(document.querySelectorAll('#mkRows [data-row]'),function(r){if(r.querySelectorAll('input')[1].value.trim())any=true});
+      if(!any)mkPreset(e.target.value);
+    }
+    if(e.target.id==='mk-photos'){mkAddFiles(e.target.files).then(function(){e.target.value=''})}
+  });
+  mkBody.addEventListener('dragover',function(e){var d=e.target.closest('#mkDrop');if(d){e.preventDefault();d.classList.add('over')}});
+  mkBody.addEventListener('dragleave',function(e){var d=e.target.closest('#mkDrop');if(d)d.classList.remove('over')});
+  mkBody.addEventListener('drop',function(e){var d=e.target.closest('#mkDrop');if(d){e.preventDefault();d.classList.remove('over');if(e.dataTransfer&&MK.form)mkAddFiles(e.dataTransfer.files)}});
+
+  /* collegamento ai dati condivisi */
+  async function mkInit(){
+    var c=window.claude;
+    var gate=$('#mkGate'),btn=$('#mkNew');
+    if(!c||!c.use){gate.textContent='Il mercato funziona solo aprendo la pagina da Claude.';$('#mkGrid').innerHTML='<div class="mk-state" style="grid-column:1/-1"><h3>Mercato non disponibile qui</h3><p>Gli annunci vengono salvati e letti dal servizio che ospita la pagina. Aprila dal link condiviso per vederli.</p></div>';return}
+    try{MK.db=await c.use('db')}catch(e){MK.db=null}
+    try{MK.user=await c.use('user')}catch(e){MK.user=null}
+    if(!MK.db){gate.textContent='Il mercato non è attivo in questa vista: per vedere o pubblicare annunci accedi con il tuo account.';$('#mkGrid').innerHTML='<div class="mk-state" style="grid-column:1/-1"><h3>Mercato non disponibile</h3><p>Serve l\'accesso con un account per leggere gli annunci.</p></div>';return}
+    if(MK.user){
+      try{MK.uid=await MK.user.id()}catch(e){}
+      try{MK.isOwner=await MK.user.isOwner()}catch(e){}
+      try{var cw=await MK.user.can('data.write');MK.canWrite=cw!==false}catch(e){MK.canWrite=true}
+    }
+    if(!MK.uid)MK.canWrite=false;
+    btn.disabled=!MK.canWrite;
+    gate.textContent=MK.canWrite?'Pubblicare è gratuito. Servono foto e l\'elenco dei componenti.':(MK.uid?'Per pubblicare serve l\'accesso come Collaboratore. Con il tuo livello puoi guardare gli annunci.':'Accedi con il tuo account per pubblicare un annuncio.');
+    var timer=setTimeout(function(){if(!MK.definitive)mkNotice('Gli annunci non rispondono. Controlla la connessione: la pagina si aggiorna appena arrivano.')},10000);
+    MK.db.collection('listings').onSnapshot(function(snap){
+      var docs={};
+      snap.docs.forEach(function(d){var v=d.data()||{};docs[d.id]=Array.isArray(v.items)?v.items:[]});
+      MK.docs=docs;mkRebuild();
+      if(!snap.metadata.fromCache){MK.definitive=true;clearTimeout(timer);mkNotice('')}
+      renderMk();
+    },function(err){
+      clearTimeout(timer);MK.failed=true;
+      mkNotice(err&&err.code==='revoked'?'L\'accesso agli annunci non è più attivo per te.':'Non riesco a leggere gli annunci in questo momento.');
+      $('#mkGrid').innerHTML='';
+    });
+  }
+  mkInit();
+
+})();
+</script>
+
+</body></html>
